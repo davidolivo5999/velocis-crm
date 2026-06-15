@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, CreditCard } from "lucide-react";
 import PageHeader from "@/components/shared/PageHeader";
 import PriceCalculator, { calculatePrice } from "@/components/rentals/PriceCalculator";
 
@@ -62,8 +62,24 @@ export default function NewRental() {
     });
   }, [selectedVehicle, form.rate_type, form.start_date, form.return_date, form.insurance, form.gps, form.child_seat]);
 
+  const handleStripeCheckout = async (rental, payment) => {
+    const isInIframe = window.self !== window.top;
+    if (isInIframe) {
+      alert("Stripe checkout only works from the published app. Please open the app in a new tab.");
+      return;
+    }
+    const res = await base44.functions.invoke("stripeCheckout", {
+      amount: payment.total_amount,
+      description: `Rental: ${rental.vehicle_name} for ${rental.customer_name}`,
+      metadata: { rental_id: rental.id, payment_id: payment.id },
+    });
+    if (res.data?.url) {
+      window.location.href = res.data.url;
+    }
+  };
+
   const createRentalMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ goToStripe }) => {
       const rentalData = {
         customer_id: form.customer_id,
         customer_name: selectedCustomer?.name || "",
@@ -86,8 +102,7 @@ export default function NewRental() {
 
       const rental = await base44.entities.Rental.create(rentalData);
 
-      // Create payment record
-      await base44.entities.Payment.create({
+      const payment = await base44.entities.Payment.create({
         rental_id: rental.id,
         customer_id: form.customer_id,
         customer_name: selectedCustomer?.name || "",
@@ -102,10 +117,8 @@ export default function NewRental() {
         status: "pending",
       });
 
-      // Update vehicle status
       await base44.entities.Vehicle.update(form.vehicle_id, { status: "rented" });
 
-      // Update customer stats
       if (selectedCustomer) {
         await base44.entities.Customer.update(form.customer_id, {
           total_rentals: (selectedCustomer.total_rentals || 0) + 1,
@@ -113,20 +126,26 @@ export default function NewRental() {
         });
       }
 
-      // Update staff rental count
       if (selectedStaff) {
         await base44.entities.Staff.update(form.staff_id, {
           rentals_handled: (selectedStaff.rentals_handled || 0) + 1,
         });
       }
+
+      return { rental, payment, goToStripe };
     },
-    onSuccess: () => {
+    onSuccess: async ({ rental, payment, goToStripe }) => {
       queryClient.invalidateQueries();
-      navigate("/rentals");
+      if (goToStripe) {
+        await handleStripeCheckout(rental, payment);
+      } else {
+        navigate("/rentals");
+      }
     },
   });
 
   const canSubmit = form.customer_id && form.vehicle_id && form.start_date && form.return_date && pricing;
+  const isPending = createRentalMutation.isPending;
 
   return (
     <div>
@@ -251,20 +270,30 @@ export default function NewRental() {
         </div>
 
         {/* Sidebar - Price Calculator */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <PriceCalculator pricing={pricing} />
 
           <Button
             className="w-full bg-accent text-accent-foreground hover:bg-accent/90 gap-2 h-12 text-base"
-            disabled={!canSubmit || createRentalMutation.isPending}
-            onClick={() => createRentalMutation.mutate()}
+            disabled={!canSubmit || isPending}
+            onClick={() => createRentalMutation.mutate({ goToStripe: false })}
           >
-            {createRentalMutation.isPending ? (
+            {isPending ? (
               <div className="w-5 h-5 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full animate-spin" />
             ) : (
               <CheckCircle className="w-5 h-5" />
             )}
-            {createRentalMutation.isPending ? "Creating..." : "Create Rental"}
+            {isPending ? "Creating..." : "Create Rental"}
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full gap-2 h-12 text-base border-2"
+            disabled={!canSubmit || isPending}
+            onClick={() => createRentalMutation.mutate({ goToStripe: true })}
+          >
+            <CreditCard className="w-5 h-5" />
+            Create & Pay with Stripe
           </Button>
         </div>
       </div>

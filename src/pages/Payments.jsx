@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { CreditCard, Search, Filter } from "lucide-react";
+import { CreditCard, Search, Filter, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,6 +18,25 @@ export default function Payments() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selected, setSelected] = useState(null);
+  const [stripeLoading, setStripeLoading] = useState(false);
+
+  const handleStripeCheckout = async (payment) => {
+    const isInIframe = window.self !== window.top;
+    if (isInIframe) {
+      alert("Stripe checkout only works from the published app. Please open the app in a new tab.");
+      return;
+    }
+    setStripeLoading(true);
+    const res = await base44.functions.invoke("stripeCheckout", {
+      amount: payment.total_amount,
+      description: `Payment for ${payment.vehicle_name} — ${payment.customer_name}`,
+      metadata: { payment_id: payment.id, rental_id: payment.rental_id },
+    });
+    setStripeLoading(false);
+    if (res.data?.url) {
+      window.location.href = res.data.url;
+    }
+  };
 
   const { data: payments = [], isLoading } = useQuery({
     queryKey: ["payments"],
@@ -114,17 +133,36 @@ export default function Payments() {
                 <div className="flex justify-between font-bold text-base"><span>Total</span><span>${selected.total_amount}</span></div>
               </div>
               {selected.status !== "paid" && (
-                <div className="space-y-2">
-                  <Label>Payment Method</Label>
-                  <Select onValueChange={(method) => updateMutation.mutate({ id: selected.id, data: { status: "paid", paid_date: new Date().toISOString().split("T")[0], payment_method: method } })}>
-                    <SelectTrigger><SelectValue placeholder="Mark as paid..." /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cash">Cash</SelectItem>
-                      <SelectItem value="credit_card">Credit Card</SelectItem>
-                      <SelectItem value="debit_card">Debit Card</SelectItem>
-                      <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label>Mark as Paid (Manual)</Label>
+                    <Select onValueChange={(method) => updateMutation.mutate({ id: selected.id, data: { status: "paid", paid_date: new Date().toISOString().split("T")[0], payment_method: method } })}>
+                      <SelectTrigger><SelectValue placeholder="Select payment method..." /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="cash">Cash</SelectItem>
+                        <SelectItem value="credit_card">Credit Card</SelectItem>
+                        <SelectItem value="debit_card">Debit Card</SelectItem>
+                        <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="relative flex items-center gap-2">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-muted-foreground">or</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                  <Button
+                    className="w-full gap-2"
+                    onClick={() => handleStripeCheckout(selected)}
+                    disabled={stripeLoading}
+                  >
+                    {stripeLoading ? (
+                      <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                    ) : (
+                      <ExternalLink className="w-4 h-4" />
+                    )}
+                    Collect via Stripe
+                  </Button>
                 </div>
               )}
             </div>
