@@ -31,6 +31,17 @@ export default function NewRental() {
     queryFn: () => base44.entities.Staff.filter({ status: "active" }),
   });
 
+  const { data: settingsList = [] } = useQuery({
+    queryKey: ["rentalSettings"],
+    queryFn: () => base44.entities.RentalSettings.list(),
+  });
+  const settings = settingsList[0];
+  const extraRates = settings ? {
+    insurance: settings.insurance_daily_rate ?? 15,
+    gps: settings.gps_daily_rate ?? 5,
+    childSeat: settings.child_seat_daily_rate ?? 8,
+  } : undefined;
+
   const availableVehicles = vehicles.filter((v) => v.status === "available");
 
   const [form, setForm] = useState({
@@ -59,8 +70,9 @@ export default function NewRental() {
       insurance: form.insurance,
       gps: form.gps,
       childSeat: form.child_seat,
+      extraRates,
     });
-  }, [selectedVehicle, form.rate_type, form.start_date, form.return_date, form.insurance, form.gps, form.child_seat]);
+  }, [selectedVehicle, form.rate_type, form.start_date, form.return_date, form.insurance, form.gps, form.child_seat, extraRates]);
 
   const handleStripeCheckout = async (rental, payment) => {
     const isInIframe = window.self !== window.top;
@@ -228,21 +240,21 @@ export default function NewRental() {
                 <Checkbox checked={form.insurance} onCheckedChange={(v) => setForm({ ...form, insurance: v })} />
                 <div>
                   <p className="text-sm font-medium">Insurance</p>
-                  <p className="text-xs text-muted-foreground">$15/day</p>
+                  <p className="text-xs text-muted-foreground">${extraRates?.insurance ?? 15}/day</p>
                 </div>
               </label>
               <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
                 <Checkbox checked={form.gps} onCheckedChange={(v) => setForm({ ...form, gps: v })} />
                 <div>
                   <p className="text-sm font-medium">GPS</p>
-                  <p className="text-xs text-muted-foreground">$5/day</p>
+                  <p className="text-xs text-muted-foreground">${extraRates?.gps ?? 5}/day</p>
                 </div>
               </label>
               <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
                 <Checkbox checked={form.child_seat} onCheckedChange={(v) => setForm({ ...form, child_seat: v })} />
                 <div>
                   <p className="text-sm font-medium">Child Seat</p>
-                  <p className="text-xs text-muted-foreground">$8/day</p>
+                  <p className="text-xs text-muted-foreground">${extraRates?.childSeat ?? 8}/day</p>
                 </div>
               </label>
             </div>

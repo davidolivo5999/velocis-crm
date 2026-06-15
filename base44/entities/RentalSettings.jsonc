@@ -1,0 +1,22 @@
+{
+  "name": "RentalSettings",
+  "type": "object",
+  "properties": {
+    "insurance_daily_rate": {
+      "type": "number",
+      "default": 15,
+      "description": "Daily rate for insurance add-on"
+    },
+    "gps_daily_rate": {
+      "type": "number",
+      "default": 5,
+      "description": "Daily rate for GPS add-on"
+    },
+    "child_seat_daily_rate": {
+      "type": "number",
+      "default": 8,
+      "description": "Daily rate for child seat add-on"
+    }
+  },
+  "required": []
+}

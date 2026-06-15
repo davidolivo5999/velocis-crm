@@ -1,10 +1,18 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { differenceInDays, differenceInWeeks } from "date-fns";
+import { differenceInDays } from "date-fns";
 
-export function calculatePrice({ vehicle, rateType, startDate, returnDate, insurance, gps, childSeat }) {
+export const DEFAULT_RATES = {
+  insurance: 15,
+  gps: 5,
+  childSeat: 8,
+};
+
+export function calculatePrice({ vehicle, rateType, startDate, returnDate, insurance, gps, childSeat, extraRates }) {
   if (!vehicle || !startDate || !returnDate) return null;
+
+  const rates = { ...DEFAULT_RATES, ...extraRates };
 
   const start = new Date(startDate);
   const end = new Date(returnDate);
@@ -30,9 +38,9 @@ export function calculatePrice({ vehicle, rateType, startDate, returnDate, insur
     unitLabel = months === 1 ? "month" : "months";
   }
 
-  const insuranceCost = insurance ? days * 15 : 0;
-  const gpsCost = gps ? days * 5 : 0;
-  const childSeatCost = childSeat ? days * 8 : 0;
+  const insuranceCost = insurance ? days * rates.insurance : 0;
+  const gpsCost = gps ? days * rates.gps : 0;
+  const childSeatCost = childSeat ? days * rates.childSeat : 0;
   const extrasTotal = insuranceCost + gpsCost + childSeatCost;
 
   return {
@@ -45,6 +53,7 @@ export function calculatePrice({ vehicle, rateType, startDate, returnDate, insur
     childSeatCost: Math.round(childSeatCost * 100) / 100,
     extrasTotal: Math.round(extrasTotal * 100) / 100,
     total: Math.round((baseRate + extrasTotal) * 100) / 100,
+    rates,
   };
 }
 
@@ -59,6 +68,8 @@ export default function PriceCalculator({ pricing }) {
     );
   }
 
+  const r = pricing.rates || DEFAULT_RATES;
+
   return (
     <Card className="p-5 bg-primary text-primary-foreground">
       <h3 className="font-heading font-semibold text-sm mb-4 uppercase tracking-wider opacity-70">Price Breakdown</h3>
@@ -69,19 +80,19 @@ export default function PriceCalculator({ pricing }) {
         </div>
         {pricing.insuranceCost > 0 && (
           <div className="flex justify-between">
-            <span className="opacity-80">Insurance ({pricing.days}d × $15)</span>
+            <span className="opacity-80">Insurance ({pricing.days}d × ${r.insurance})</span>
             <span>${pricing.insuranceCost}</span>
           </div>
         )}
         {pricing.gpsCost > 0 && (
           <div className="flex justify-between">
-            <span className="opacity-80">GPS ({pricing.days}d × $5)</span>
+            <span className="opacity-80">GPS ({pricing.days}d × ${r.gps})</span>
             <span>${pricing.gpsCost}</span>
           </div>
         )}
         {pricing.childSeatCost > 0 && (
           <div className="flex justify-between">
-            <span className="opacity-80">Child Seat ({pricing.days}d × $8)</span>
+            <span className="opacity-80">Child Seat ({pricing.days}d × ${r.childSeat})</span>
             <span>${pricing.childSeatCost}</span>
           </div>
         )}

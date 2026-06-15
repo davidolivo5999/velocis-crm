@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ const navItems = [
   { label: "Maintenance", icon: Wrench, path: "/maintenance" },
   { label: "Staff", icon: UserCog, path: "/staff" },
   { label: "New Rental", icon: PlusCircle, path: "/new-rental" },
+  { label: "Settings", icon: Settings, path: "/settings" },
 ];
 
 export default function Sidebar() {
