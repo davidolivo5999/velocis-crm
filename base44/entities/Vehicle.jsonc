@@ -1,0 +1,82 @@
+{
+  "name": "Vehicle",
+  "type": "object",
+  "properties": {
+    "make": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "year": {
+      "type": "number"
+    },
+    "license_plate": {
+      "type": "string"
+    },
+    "vin": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "economy",
+        "compact",
+        "midsize",
+        "fullsize",
+        "suv",
+        "luxury",
+        "van",
+        "truck"
+      ]
+    },
+    "daily_rate": {
+      "type": "number"
+    },
+    "weekly_rate": {
+      "type": "number"
+    },
+    "monthly_rate": {
+      "type": "number"
+    },
+    "mileage": {
+      "type": "number",
+      "default": 0
+    },
+    "fuel_type": {
+      "type": "string",
+      "enum": [
+        "gasoline",
+        "diesel",
+        "hybrid",
+        "electric"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "rented",
+        "maintenance",
+        "retired"
+      ],
+      "default": "available"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "make",
+    "model",
+    "year",
+    "license_plate",
+    "daily_rate"
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "name": "Payment",
+  "type": "object",
+  "properties": {
+    "rental_id": {
+      "type": "string"
+    },
+    "customer_id": {
+      "type": "string"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "vehicle_name": {
+      "type": "string"
+    },
+    "base_rate": {
+      "type": "number"
+    },
+    "extras_insurance": {
+      "type": "number",
+      "default": 0
+    },
+    "extras_gps": {
+      "type": "number",
+      "default": 0
+    },
+    "extras_child_seat": {
+      "type": "number",
+      "default": 0
+    },
+    "extras_total": {
+      "type": "number",
+      "default": 0
+    },
+    "total_amount": {
+      "type": "number"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "credit_card",
+        "debit_card",
+        "bank_transfer",
+        "other"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "overdue",
+        "refunded",
+        "partial"
+      ],
+      "default": "pending"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "rental_id",
+    "customer_id",
+    "total_amount",
+    "due_date"
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "name": "Maintenance",
+  "type": "object",
+  "properties": {
+    "vehicle_id": {
+      "type": "string"
+    },
+    "vehicle_name": {
+      "type": "string"
+    },
+    "service_type": {
+      "type": "string",
+      "enum": [
+        "oil_change",
+        "tire_rotation",
+        "brake_service",
+        "engine_repair",
+        "transmission",
+        "body_work",
+        "ac_service",
+        "inspection",
+        "cleaning",
+        "other"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "service_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "cost": {
+      "type": "number"
+    },
+    "next_service_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "performed_by": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "in_progress",
+        "completed"
+      ],
+      "default": "scheduled"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "vehicle_id",
+    "service_type",
+    "service_date",
+    "cost"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "Customer",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "address": {
+      "type": "string",
+      "description": "Address"
+    },
+    "drivers_license": {
+      "type": "string",
+      "description": "Driver's license number"
+    },
+    "total_rentals": {
+      "type": "number",
+      "default": 0
+    },
+    "total_spent": {
+      "type": "number",
+      "default": 0
+    },
+    "is_vip": {
+      "type": "boolean",
+      "default": false
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "email",
+    "phone"
+  ]
+}

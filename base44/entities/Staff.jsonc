@@ -1,0 +1,49 @@
+{
+  "name": "Staff",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "manager",
+        "agent",
+        "mechanic",
+        "admin",
+        "driver"
+      ]
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "hire_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "rentals_handled": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "role",
+    "email"
+  ]
+}

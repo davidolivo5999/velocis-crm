@@ -1,0 +1,91 @@
+{
+  "name": "Rental",
+  "type": "object",
+  "properties": {
+    "customer_id": {
+      "type": "string",
+      "description": "Customer ID"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "vehicle_id": {
+      "type": "string",
+      "description": "Vehicle ID"
+    },
+    "vehicle_name": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "return_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "actual_return_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "rate_type": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly"
+      ]
+    },
+    "base_rate": {
+      "type": "number"
+    },
+    "extras_insurance": {
+      "type": "number",
+      "default": 0
+    },
+    "extras_gps": {
+      "type": "number",
+      "default": 0
+    },
+    "extras_child_seat": {
+      "type": "number",
+      "default": 0
+    },
+    "extras_total": {
+      "type": "number",
+      "default": 0
+    },
+    "total_amount": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_pickup",
+        "active",
+        "due_today",
+        "overdue",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending_pickup"
+    },
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "customer_id",
+    "vehicle_id",
+    "start_date",
+    "return_date",
+    "rate_type",
+    "total_amount"
+  ]
+}
