@@ -46,6 +46,7 @@ Deno.serve(async (req) => {
     });
 
     // Send email via Resend API
+    let emailSent = false;
     try {
       const resendApiKey = Deno.env.get("RESEND_API_KEY");
       if (!resendApiKey) {
@@ -67,9 +68,11 @@ Deno.serve(async (req) => {
       });
 
       if (!emailRes.ok) {
-        throw new Error(`Resend API error: ${emailRes.statusText}`);
+        const errorData = await emailRes.text();
+        throw new Error(`Resend API error: ${emailRes.statusText} - ${errorData}`);
       }
 
+      emailSent = true;
       console.log(`Payment link email sent to ${customerEmail}`);
     } catch (emailError) {
       console.error(`Failed to send email to ${customerEmail}:`, emailError.message);
@@ -79,7 +82,7 @@ Deno.serve(async (req) => {
       success: true, 
       session_id: session.id, 
       url: session.url,
-      emailSent: true 
+      emailSent: emailSent 
     });
   } catch (error) {
     console.error("Send payment link error:", error.message, error.stack);
