@@ -11,6 +11,12 @@
     "customer_name": {
       "type": "string"
     },
+    "customer_email": {
+      "type": "string"
+    },
+    "customer_phone": {
+      "type": "string"
+    },
     "vehicle_name": {
       "type": "string"
     },
@@ -59,6 +65,7 @@
         "credit_card",
         "debit_card",
         "bank_transfer",
+        "stripe",
         "other"
       ]
     },

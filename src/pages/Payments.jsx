@@ -31,6 +31,9 @@ export default function Payments() {
       amount: payment.total_amount,
       description: `Payment for ${payment.vehicle_name} — ${payment.customer_name}`,
       metadata: { payment_id: payment.id, rental_id: payment.rental_id },
+      customerEmail: payment.customer_email,
+      customerPhone: payment.customer_phone,
+      customerName: payment.customer_name,
     });
     setStripeLoading(false);
     if (res.data?.url) {

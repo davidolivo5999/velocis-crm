@@ -111,6 +111,9 @@ export default function NewRental() {
           rental_id: String(rental.id).substring(0, 50),
           payment_id: String(payment.id).substring(0, 50),
         },
+        customerEmail: selectedCustomer?.email,
+        customerPhone: selectedCustomer?.phone,
+        customerName: selectedCustomer?.name,
       });
       if (res.data?.url) {
         window.location.href = res.data.url;
@@ -157,6 +160,8 @@ export default function NewRental() {
         rental_id: rental.id,
         customer_id: form.customer_id,
         customer_name: selectedCustomer?.name || "",
+        customer_email: selectedCustomer?.email || "",
+        customer_phone: selectedCustomer?.phone || "",
         vehicle_name: rentalData.vehicle_name,
         base_rate: pricing?.baseRate || 0,
         extras_insurance: pricing?.insuranceCost || 0,

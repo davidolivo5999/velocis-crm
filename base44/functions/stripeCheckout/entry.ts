@@ -16,7 +16,8 @@ Deno.serve(async (req) => {
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY"));
     const body = await req.json();
-    const { amount, description, metadata = {}, successUrl, cancelUrl } = body;
+    const { amount, description, metadata = {}, successUrl, cancelUrl, customerEmail, customerName, customerPhone } = body;
+    const base44 = createClientFromRequest(req);
 
     // Validate amount - must be positive number and reasonable limit
     if (!Number.isFinite(amount) || amount <= 0 || amount > 999999) {
@@ -82,6 +83,21 @@ Deno.serve(async (req) => {
     });
 
     console.log(`Stripe session created: ${session.id} for amount: ${amount}`);
+
+    // Send email notification with payment link
+    if (customerEmail) {
+      try {
+        await base44.integrations.Core.SendEmail({
+          to: customerEmail,
+          subject: `Payment Required for Your Rental - ${sanitizedDescription}`,
+          body: `Hi ${customerName || "Valued Customer"},\n\nYour rental payment of $${(amount).toFixed(2)} is now ready to be paid.\n\nClick the link below to complete your payment:\n${session.url}\n\nThank you for your business!`,
+        });
+        console.log(`Email sent to ${customerEmail}`);
+      } catch (emailError) {
+        console.error(`Failed to send email to ${customerEmail}:`, emailError.message);
+      }
+    }
+
     return Response.json({ url: session.url, session_id: session.id });
   } catch (error) {
     console.error("Stripe checkout error:", error.message, error.stack);
