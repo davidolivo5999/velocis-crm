@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { CarFront, PlusCircle, Search, Gauge, DollarSign } from "lucide-react";
+import { CarFront, PlusCircle, Search, Gauge, DollarSign, Upload } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -67,6 +67,9 @@ export default function Fleet() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((v) => (
             <Card key={v.id} className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer" onClick={() => setEditVehicle(v)}>
+              {v.image_url && (
+                <img src={v.image_url} alt={`${v.make} ${v.model}`} className="w-full h-40 object-cover" />
+              )}
               <div className="p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -119,8 +122,9 @@ function VehicleDialog({ open, onClose, vehicle, onSave, isSaving }) {
   const [form, setForm] = React.useState({
     make: "", model: "", year: new Date().getFullYear(), license_plate: "", vin: "", color: "",
     category: "economy", daily_rate: 0, weekly_rate: 0, monthly_rate: 0, mileage: 0,
-    fuel_type: "gasoline", status: "available", notes: "",
+    fuel_type: "gasoline", status: "available", notes: "", image_url: "",
   });
+  const [uploading, setUploading] = React.useState(false);
 
   React.useEffect(() => {
     if (vehicle) {
@@ -130,16 +134,28 @@ function VehicleDialog({ open, onClose, vehicle, onSave, isSaving }) {
         category: vehicle.category || "economy", daily_rate: vehicle.daily_rate || 0,
         weekly_rate: vehicle.weekly_rate || 0, monthly_rate: vehicle.monthly_rate || 0,
         mileage: vehicle.mileage || 0, fuel_type: vehicle.fuel_type || "gasoline",
-        status: vehicle.status || "available", notes: vehicle.notes || "",
+        status: vehicle.status || "available", notes: vehicle.notes || "", image_url: vehicle.image_url || "",
       });
     } else {
       setForm({
         make: "", model: "", year: new Date().getFullYear(), license_plate: "", vin: "", color: "",
         category: "economy", daily_rate: 0, weekly_rate: 0, monthly_rate: 0, mileage: 0,
-        fuel_type: "gasoline", status: "available", notes: "",
+        fuel_type: "gasoline", status: "available", notes: "", image_url: "",
       });
     }
   }, [vehicle, open]);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const res = await base44.integrations.Core.UploadFile({ file });
+      setForm({ ...form, image_url: res.file_url });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -199,8 +215,32 @@ function VehicleDialog({ open, onClose, vehicle, onSave, isSaving }) {
               </Select>
             </div>
           )}
+          <div>
+            <Label>Picture</Label>
+            <div className="flex items-center gap-3">
+              {form.image_url && <img src={form.image_url} alt="Vehicle" className="w-20 h-20 rounded object-cover" />}
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                  className="hidden"
+                  id="vehicle-image"
+                />
+                <label htmlFor="vehicle-image">
+                  <Button type="button" variant="outline" className="w-full cursor-pointer" disabled={uploading} asChild>
+                    <span className="flex items-center gap-2">
+                      <Upload className="w-4 h-4" />
+                      {uploading ? "Uploading..." : "Upload Image"}
+                    </span>
+                  </Button>
+                </label>
+              </div>
+            </div>
+          </div>
           <div><Label>Notes</Label><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={2} /></div>
-          <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" disabled={isSaving}>
+          <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" disabled={isSaving || uploading}>
             {isSaving ? "Saving..." : vehicle ? "Update Vehicle" : "Add Vehicle"}
           </Button>
         </form>
