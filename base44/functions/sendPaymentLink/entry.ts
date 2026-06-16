@@ -45,31 +45,14 @@ Deno.serve(async (req) => {
       },
     });
 
-    // Send email via Resend API
+    // Send email via Base44 Core integration
     try {
-      const resendApiKey = Deno.env.get("RESEND_API_KEY");
-      if (!resendApiKey) {
-        throw new Error("RESEND_API_KEY not configured");
-      }
-
-      const emailRes = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "noreply@autorent.com",
-          to: customerEmail,
-          subject: `Your Rental Payment Link - ${String(vehicleName).substring(0, 100)}`,
-          html: `<p>Hi ${customerName || "Valued Customer"},</p><p>Your rental has been created! Click the link below to pay <strong>$${(amount).toFixed(2)}</strong>:</p><p><a href="${session.url}" style="background-color: #222; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Complete Payment</a></p><p>This link is valid for 24 hours.</p><p>Thank you!</p>`,
-        }),
+      const base44 = await import('npm:@base44/sdk@0.8.31');
+      await base44.integrations.Core.SendEmail({
+        to: customerEmail,
+        subject: `Your Rental Payment Link - ${String(vehicleName).substring(0, 100)}`,
+        body: `Hi ${customerName || "Valued Customer"},\n\nYour rental has been created! Click the link below to pay $${(amount).toFixed(2)}:\n\n${session.url}\n\nThis link is valid for 24 hours.\n\nThank you!`,
       });
-
-      if (!emailRes.ok) {
-        throw new Error(`Resend API error: ${emailRes.statusText}`);
-      }
-
       console.log(`Payment link email sent to ${customerEmail}`);
     } catch (emailError) {
       console.error(`Failed to send email to ${customerEmail}:`, emailError.message);
