@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { CarFront, PlusCircle, Search, Gauge, DollarSign, Upload } from "lucide-react";
+import { CarFront, PlusCircle, Search, Gauge, DollarSign, Upload, Accessibility } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import PageHeader from "@/components/shared/PageHeader";
 import StatusBadge from "@/components/shared/StatusBadge";
 import EmptyState from "@/components/shared/EmptyState";
@@ -93,11 +94,17 @@ export default function Fleet() {
                     <p className="text-[10px] text-muted-foreground">Monthly</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Gauge className="w-3.5 h-3.5" />
-                  <span>{(v.mileage || 0).toLocaleString()} mi</span>
-                  <span className="ml-auto capitalize">{v.fuel_type}</span>
-                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                   <Gauge className="w-3.5 h-3.5" />
+                   <span>{(v.mileage || 0).toLocaleString()} mi</span>
+                   <span className="ml-auto capitalize">{v.fuel_type}</span>
+                 </div>
+                 {v.handicap_accessible && (
+                   <div className="flex items-center gap-1 text-xs bg-accent/10 text-accent px-2 py-1 rounded w-fit">
+                     <Accessibility className="w-3.5 h-3.5" />
+                     <span>Handicap Accessible</span>
+                   </div>
+                 )}
               </div>
             </Card>
           ))}
@@ -122,7 +129,7 @@ function VehicleDialog({ open, onClose, vehicle, onSave, isSaving }) {
   const [form, setForm] = React.useState({
     make: "", model: "", year: new Date().getFullYear(), license_plate: "", vin: "", color: "",
     category: "economy", daily_rate: 0, weekly_rate: 0, monthly_rate: 0, mileage: 0,
-    fuel_type: "gasoline", status: "available", notes: "", image_url: "",
+    fuel_type: "gasoline", status: "available", notes: "", image_url: "", handicap_accessible: false,
   });
   const [uploading, setUploading] = React.useState(false);
 
@@ -135,12 +142,13 @@ function VehicleDialog({ open, onClose, vehicle, onSave, isSaving }) {
         weekly_rate: vehicle.weekly_rate || 0, monthly_rate: vehicle.monthly_rate || 0,
         mileage: vehicle.mileage || 0, fuel_type: vehicle.fuel_type || "gasoline",
         status: vehicle.status || "available", notes: vehicle.notes || "", image_url: vehicle.image_url || "",
+        handicap_accessible: vehicle.handicap_accessible || false,
       });
     } else {
       setForm({
         make: "", model: "", year: new Date().getFullYear(), license_plate: "", vin: "", color: "",
         category: "economy", daily_rate: 0, weekly_rate: 0, monthly_rate: 0, mileage: 0,
-        fuel_type: "gasoline", status: "available", notes: "", image_url: "",
+        fuel_type: "gasoline", status: "available", notes: "", image_url: "", handicap_accessible: false,
       });
     }
   }, [vehicle, open]);
@@ -215,6 +223,14 @@ function VehicleDialog({ open, onClose, vehicle, onSave, isSaving }) {
               </Select>
             </div>
           )}
+          <div className="flex items-center gap-3">
+            <Checkbox
+              id="handicap"
+              checked={form.handicap_accessible}
+              onCheckedChange={(checked) => setForm({ ...form, handicap_accessible: checked })}
+            />
+            <Label htmlFor="handicap" className="cursor-pointer">Handicap Accessible</Label>
+          </div>
           <div>
             <Label>Picture</Label>
             <div className="flex items-center gap-3">

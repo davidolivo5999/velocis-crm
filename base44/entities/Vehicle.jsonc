@@ -55,6 +55,11 @@
         "electric"
       ]
     },
+    "handicap_accessible": {
+      "type": "boolean",
+      "default": false,
+      "description": "Vehicle is handicap accessible"
+    },
     "status": {
       "type": "string",
       "enum": [
