@@ -71,8 +71,9 @@ export default function NewRental() {
       gps: form.gps,
       childSeat: form.child_seat,
       extraRates,
+      customerBirthDate: selectedCustomer?.birth_date,
     });
-  }, [selectedVehicle, form.rate_type, form.start_date, form.return_date, form.insurance, form.gps, form.child_seat, extraRates]);
+  }, [selectedVehicle, form.rate_type, form.start_date, form.return_date, form.insurance, form.gps, form.child_seat, extraRates, selectedCustomer?.birth_date]);
 
   const validateRentalData = (data) => {
     if (!data.customer_id || !data.vehicle_id) return "Customer and vehicle are required";
@@ -128,6 +129,7 @@ export default function NewRental() {
         extras_gps: Math.max(0, pricing?.gpsCost || 0),
         extras_child_seat: Math.max(0, pricing?.childSeatCost || 0),
         extras_total: Math.max(0, pricing?.extrasTotal || 0),
+        birthday_discount: Math.max(0, pricing?.birthdayDiscount || 0),
         total_amount: Math.max(0, pricing?.total || 0),
         status: "pending_pickup",
         staff_id: form.staff_id || undefined,
@@ -153,6 +155,7 @@ export default function NewRental() {
         extras_gps: pricing?.gpsCost || 0,
         extras_child_seat: pricing?.childSeatCost || 0,
         extras_total: pricing?.extrasTotal || 0,
+        birthday_discount: pricing?.birthdayDiscount || 0,
         total_amount: pricing?.total || 0,
         due_date: form.start_date,
         status: "pending",

@@ -9,7 +9,14 @@ export const DEFAULT_RATES = {
   childSeat: 8,
 };
 
-export function calculatePrice({ vehicle, rateType, startDate, returnDate, insurance, gps, childSeat, extraRates }) {
+const isBirthday = (birthDate) => {
+  if (!birthDate) return false;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  return today.getMonth() === birth.getMonth() && today.getDate() === birth.getDate();
+};
+
+export function calculatePrice({ vehicle, rateType, startDate, returnDate, insurance, gps, childSeat, extraRates, customerBirthDate }) {
   if (!vehicle || !startDate || !returnDate) return null;
 
   const rates = { ...DEFAULT_RATES, ...extraRates };
@@ -42,6 +49,10 @@ export function calculatePrice({ vehicle, rateType, startDate, returnDate, insur
   const gpsCost = gps ? days * rates.gps : 0;
   const childSeatCost = childSeat ? days * rates.childSeat : 0;
   const extrasTotal = insuranceCost + gpsCost + childSeatCost;
+  const subtotal = baseRate + extrasTotal;
+  const hasBirthdayDiscount = isBirthday(customerBirthDate);
+  const birthdayDiscount = hasBirthdayDiscount ? Math.round(subtotal * 0.1 * 100) / 100 : 0;
+  const total = subtotal - birthdayDiscount;
 
   return {
     baseRate: Math.round(baseRate * 100) / 100,
@@ -52,7 +63,10 @@ export function calculatePrice({ vehicle, rateType, startDate, returnDate, insur
     gpsCost: Math.round(gpsCost * 100) / 100,
     childSeatCost: Math.round(childSeatCost * 100) / 100,
     extrasTotal: Math.round(extrasTotal * 100) / 100,
-    total: Math.round((baseRate + extrasTotal) * 100) / 100,
+    subtotal: Math.round(subtotal * 100) / 100,
+    birthdayDiscount,
+    hasBirthdayDiscount,
+    total: Math.round(total * 100) / 100,
     rates,
   };
 }
@@ -97,6 +111,18 @@ export default function PriceCalculator({ pricing }) {
           </div>
         )}
         <Separator className="bg-primary-foreground/20" />
+        {pricing.hasBirthdayDiscount && (
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between opacity-80">
+              <span>Subtotal</span>
+              <span>${pricing.subtotal.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-green-300 font-medium">
+              <span>Birthday Discount (10%)</span>
+              <span>-${pricing.birthdayDiscount.toLocaleString()}</span>
+            </div>
+          </div>
+        )}
         <div className="flex justify-between text-lg font-bold">
           <span>Total</span>
           <span>${pricing.total.toLocaleString()}</span>

@@ -55,6 +55,10 @@
       "type": "number",
       "default": 0
     },
+    "birthday_discount": {
+      "type": "number",
+      "default": 0
+    },
     "total_amount": {
       "type": "number"
     },

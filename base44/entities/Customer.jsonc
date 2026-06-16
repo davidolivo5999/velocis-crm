@@ -18,6 +18,11 @@
       "type": "string",
       "description": "Address"
     },
+    "birth_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth"
+    },
     "drivers_license": {
       "type": "string",
       "description": "Driver's license number"
