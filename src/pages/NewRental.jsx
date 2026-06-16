@@ -194,6 +194,22 @@ export default function NewRental() {
     },
     onSuccess: async ({ rental, payment, goToStripe }) => {
       queryClient.invalidateQueries();
+      
+      // Send payment link email immediately after rental creation
+      if (selectedCustomer?.email) {
+        try {
+          await base44.functions.invoke("sendPaymentLink", {
+            paymentId: payment.id,
+            customerEmail: selectedCustomer.email,
+            customerName: selectedCustomer.name,
+            amount: payment.total_amount,
+            vehicleName: payment.vehicle_name,
+          });
+        } catch (err) {
+          console.error("Failed to send payment link:", err);
+        }
+      }
+      
       if (goToStripe) {
         await handleStripeCheckout(rental, payment);
       } else {
