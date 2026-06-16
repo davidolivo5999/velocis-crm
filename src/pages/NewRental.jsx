@@ -74,19 +74,42 @@ export default function NewRental() {
     });
   }, [selectedVehicle, form.rate_type, form.start_date, form.return_date, form.insurance, form.gps, form.child_seat, extraRates]);
 
+  const validateRentalData = (data) => {
+    if (!data.customer_id || !data.vehicle_id) return "Customer and vehicle are required";
+    if (!data.start_date || !data.return_date) return "Start and return dates are required";
+    if (new Date(data.return_date) <= new Date(data.start_date)) return "Return date must be after start date";
+    if (!Number.isFinite(data.total_amount) || data.total_amount <= 0) return "Invalid total amount";
+    return "";
+  };
+
   const handleStripeCheckout = async (rental, payment) => {
+    // Validate payment data before stripe
+    if (!Number.isFinite(payment.total_amount) || payment.total_amount <= 0) {
+      alert("Invalid payment amount");
+      return;
+    }
+
     const isInIframe = window.self !== window.top;
     if (isInIframe) {
       alert("Stripe checkout only works from the published app. Please open the app in a new tab.");
       return;
     }
-    const res = await base44.functions.invoke("stripeCheckout", {
-      amount: payment.total_amount,
-      description: `Rental: ${rental.vehicle_name} for ${rental.customer_name}`,
-      metadata: { rental_id: rental.id, payment_id: payment.id },
-    });
-    if (res.data?.url) {
-      window.location.href = res.data.url;
+
+    try {
+      const res = await base44.functions.invoke("stripeCheckout", {
+        amount: Math.round(payment.total_amount * 100) / 100,
+        description: `Rental: ${String(rental.vehicle_name).substring(0, 256)}`,
+        metadata: {
+          rental_id: String(rental.id).substring(0, 50),
+          payment_id: String(payment.id).substring(0, 50),
+        },
+      });
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+      }
+    } catch (err) {
+      alert("Payment processing failed. Please try again.");
+      console.error("Stripe error:", err);
     }
   };
 
@@ -94,23 +117,29 @@ export default function NewRental() {
     mutationFn: async ({ goToStripe }) => {
       const rentalData = {
         customer_id: form.customer_id,
-        customer_name: selectedCustomer?.name || "",
+        customer_name: String(selectedCustomer?.name || "").substring(0, 256),
         vehicle_id: form.vehicle_id,
-        vehicle_name: selectedVehicle ? `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model}` : "",
+        vehicle_name: selectedVehicle ? `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model}`.substring(0, 256) : "",
         start_date: form.start_date,
         return_date: form.return_date,
         rate_type: form.rate_type,
-        base_rate: pricing?.baseRate || 0,
-        extras_insurance: pricing?.insuranceCost || 0,
-        extras_gps: pricing?.gpsCost || 0,
-        extras_child_seat: pricing?.childSeatCost || 0,
-        extras_total: pricing?.extrasTotal || 0,
-        total_amount: pricing?.total || 0,
+        base_rate: Math.max(0, pricing?.baseRate || 0),
+        extras_insurance: Math.max(0, pricing?.insuranceCost || 0),
+        extras_gps: Math.max(0, pricing?.gpsCost || 0),
+        extras_child_seat: Math.max(0, pricing?.childSeatCost || 0),
+        extras_total: Math.max(0, pricing?.extrasTotal || 0),
+        total_amount: Math.max(0, pricing?.total || 0),
         status: "pending_pickup",
         staff_id: form.staff_id || undefined,
-        staff_name: selectedStaff?.name || "",
-        notes: form.notes,
+        staff_name: String(selectedStaff?.name || "").substring(0, 256),
+        notes: String(form.notes || "").substring(0, 1000),
       };
+
+      // Validate before submission
+      const validationError = validateRentalData(rentalData);
+      if (validationError) {
+        throw new Error(validationError);
+      }
 
       const rental = await base44.entities.Rental.create(rentalData);
 

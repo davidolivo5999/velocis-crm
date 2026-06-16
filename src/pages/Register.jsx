@@ -19,13 +19,42 @@ export default function Register() {
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState("");
 
+  const validatePassword = (pwd) => {
+    if (pwd.length < 8) return "Password must be at least 8 characters";
+    if (!/[A-Z]/.test(pwd)) return "Password must contain an uppercase letter";
+    if (!/[a-z]/.test(pwd)) return "Password must contain a lowercase letter";
+    if (!/[0-9]/.test(pwd)) return "Password must contain a number";
+    if (!/[^A-Za-z0-9]/.test(pwd)) return "Password must contain a special character";
+    return "";
+  };
+
+  const getPasswordStrength = (pwd) => {
+    if (!pwd) return 0;
+    let strength = 0;
+    if (pwd.length >= 8) strength++;
+    if (pwd.length >= 12) strength++;
+    if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) strength++;
+    if (/[0-9]/.test(pwd)) strength++;
+    if (/[^A-Za-z0-9]/.test(pwd)) strength++;
+    return strength;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Validate password strength
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
+
     setLoading(true);
     try {
       await base44.auth.register({ email, password });
@@ -181,21 +210,38 @@ export default function Register() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
+           <Label htmlFor="password">Password</Label>
+           <div className="relative">
+             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+             <Input
+               id="password"
+               type="password"
+               autoComplete="new-password"
+               placeholder="••••••••"
+               value={password}
+               onChange={(e) => setPassword(e.target.value)}
+               className="pl-10 h-12"
+               required
+             />
+           </div>
+           {password && (
+             <div className="mt-2 space-y-1">
+               <div className="flex gap-1">
+                 {[...Array(5)].map((_, i) => (
+                   <div
+                     key={i}
+                     className={`h-1.5 flex-1 rounded-full ${
+                       i < getPasswordStrength(password) ? "bg-green-500" : "bg-border"
+                     }`}
+                   />
+                 ))}
+               </div>
+               <p className="text-xs text-muted-foreground">
+                 {getPasswordStrength(password) < 5 ? "Strengthen your password" : "Strong password ✓"}
+               </p>
+             </div>
+           )}
+         </div>
         <div className="space-y-2">
           <Label htmlFor="confirm">Confirm Password</Label>
           <div className="relative">
