@@ -97,7 +97,8 @@ export default function Fleet() {
                 <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                    <Gauge className="w-3.5 h-3.5" />
                    <span>{(v.mileage || 0).toLocaleString()} mi</span>
-                   <span className="ml-auto capitalize">{v.fuel_type}</span>
+                   {v.seats && <span className="ml-auto">{v.seats} seats</span>}
+                   {!v.seats && <span className="ml-auto capitalize">{v.fuel_type}</span>}
                  </div>
                  {v.handicap_accessible && (
                    <div className="flex items-center gap-1 text-xs bg-accent/10 text-accent px-2 py-1 rounded w-fit">
@@ -129,7 +130,7 @@ function VehicleDialog({ open, onClose, vehicle, onSave, isSaving }) {
   const [form, setForm] = React.useState({
     make: "", model: "", year: new Date().getFullYear(), license_plate: "", vin: "", color: "",
     category: "economy", daily_rate: 0, weekly_rate: 0, monthly_rate: 0, mileage: 0,
-    fuel_type: "gasoline", status: "available", notes: "", image_url: "", handicap_accessible: false,
+    fuel_type: "gasoline", status: "available", notes: "", image_url: "", handicap_accessible: false, seats: 0,
   });
   const [uploading, setUploading] = React.useState(false);
 
@@ -142,13 +143,13 @@ function VehicleDialog({ open, onClose, vehicle, onSave, isSaving }) {
         weekly_rate: vehicle.weekly_rate || 0, monthly_rate: vehicle.monthly_rate || 0,
         mileage: vehicle.mileage || 0, fuel_type: vehicle.fuel_type || "gasoline",
         status: vehicle.status || "available", notes: vehicle.notes || "", image_url: vehicle.image_url || "",
-        handicap_accessible: vehicle.handicap_accessible || false,
+        handicap_accessible: vehicle.handicap_accessible || false, seats: vehicle.seats || 0,
       });
     } else {
       setForm({
         make: "", model: "", year: new Date().getFullYear(), license_plate: "", vin: "", color: "",
         category: "economy", daily_rate: 0, weekly_rate: 0, monthly_rate: 0, mileage: 0,
-        fuel_type: "gasoline", status: "available", notes: "", image_url: "", handicap_accessible: false,
+        fuel_type: "gasoline", status: "available", notes: "", image_url: "", handicap_accessible: false, seats: 0,
       });
     }
   }, [vehicle, open]);
@@ -205,8 +206,9 @@ function VehicleDialog({ open, onClose, vehicle, onSave, isSaving }) {
             <div><Label>Weekly Rate ($)</Label><Input type="number" min="0" step="0.01" value={form.weekly_rate} onChange={(e) => setForm({ ...form, weekly_rate: e.target.value })} /></div>
             <div><Label>Monthly Rate ($)</Label><Input type="number" min="0" step="0.01" value={form.monthly_rate} onChange={(e) => setForm({ ...form, monthly_rate: e.target.value })} /></div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div><Label>Mileage</Label><Input type="number" min="0" value={form.mileage} onChange={(e) => setForm({ ...form, mileage: e.target.value })} /></div>
+            <div><Label>Seats</Label><Input type="number" min="0" value={form.seats} onChange={(e) => setForm({ ...form, seats: e.target.value })} /></div>
             <div><Label>VIN</Label><Input value={form.vin} onChange={(e) => setForm({ ...form, vin: e.target.value })} /></div>
           </div>
           {vehicle && (

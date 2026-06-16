@@ -46,6 +46,10 @@
       "type": "number",
       "default": 0
     },
+    "seats": {
+      "type": "number",
+      "description": "Number of seats"
+    },
     "fuel_type": {
       "type": "string",
       "enum": [
