@@ -1,0 +1,69 @@
+{
+  "name": "GasLevelCheck",
+  "type": "object",
+  "properties": {
+    "vehicle_id": {
+      "type": "string",
+      "description": "Vehicle ID"
+    },
+    "vehicle_name": {
+      "type": "string",
+      "description": "Vehicle name for display"
+    },
+    "rental_id": {
+      "type": "string",
+      "description": "Associated rental ID"
+    },
+    "check_type": {
+      "type": "string",
+      "enum": [
+        "pickup",
+        "dropoff"
+      ],
+      "description": "Whether this is a pickup or dropoff check"
+    },
+    "gas_level_percent": {
+      "type": "number",
+      "description": "Gas level as percentage (0-100)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location/address of the check"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "GPS latitude"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "GPS longitude"
+    },
+    "check_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the check was performed"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "low",
+        "normal",
+        "full"
+      ],
+      "description": "Gas level status"
+    }
+  },
+  "required": [
+    "vehicle_id",
+    "check_type",
+    "gas_level_percent",
+    "location",
+    "check_date",
+    "status"
+  ]
+}

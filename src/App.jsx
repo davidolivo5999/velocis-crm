@@ -23,6 +23,7 @@ import MaintenancePage from '@/pages/MaintenancePage';
 import StaffPage from '@/pages/StaffPage';
 import NewRental from '@/pages/NewRental';
 import SettingsPage from '@/pages/SettingsPage';
+import GasAlerts from '@/pages/GasAlerts';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -64,6 +65,7 @@ const AuthenticatedApp = () => {
           <Route path="/staff" element={<StaffPage />} />
           <Route path="/new-rental" element={<NewRental />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/gas-alerts" element={<GasAlerts />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

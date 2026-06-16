@@ -13,6 +13,7 @@ import {
   X,
   ChevronRight,
   Settings,
+  Fuel,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ const navItems = [
   { label: "Payments", icon: CreditCard, path: "/payments" },
   { label: "Maintenance", icon: Wrench, path: "/maintenance" },
   { label: "Staff", icon: UserCog, path: "/staff" },
+  { label: "Gas Alerts", icon: Fuel, path: "/gas-alerts" },
   { label: "New Rental", icon: PlusCircle, path: "/new-rental" },
   { label: "Settings", icon: Settings, path: "/settings" },
 ];
