@@ -31,16 +31,20 @@ export default function NewRental() {
     queryFn: () => base44.entities.Staff.filter({ status: "active" }),
   });
 
-  const { data: settingsList = [] } = useQuery({
+  const { data: rentalSettings = {} } = useQuery({
     queryKey: ["rentalSettings"],
-    queryFn: () => base44.entities.RentalSettings.list(),
+    queryFn: async () => {
+      const settings = await base44.entities.RentalSettings.list();
+      return settings[0] || {};
+    },
   });
-  const settings = settingsList[0];
-  const extraRates = settings ? {
-    insurance: settings.insurance_daily_rate ?? 15,
-    gps: settings.gps_daily_rate ?? 5,
-    childSeat: settings.child_seat_daily_rate ?? 8,
-  } : undefined;
+
+  const extraRates = {
+    insurance: rentalSettings.insurance_daily_rate ?? 15,
+    gps: rentalSettings.gps_daily_rate ?? 5,
+    childSeat: rentalSettings.child_seat_daily_rate ?? 8,
+    chauffeur: rentalSettings.luxury_chauffeur_daily_rate ?? 100,
+  };
 
   const availableVehicles = vehicles.filter((v) => v.status === "available");
 
@@ -53,6 +57,7 @@ export default function NewRental() {
     insurance: false,
     gps: false,
     child_seat: false,
+    chauffeur: false,
     staff_id: "",
     notes: "",
   });
@@ -70,10 +75,12 @@ export default function NewRental() {
       insurance: form.insurance,
       gps: form.gps,
       childSeat: form.child_seat,
+      chauffeur: form.chauffeur,
       extraRates,
       customerBirthDate: selectedCustomer?.birth_date,
+      birthdayDiscountPercent: rentalSettings.birthday_discount_percentage || 10,
     });
-  }, [selectedVehicle, form.rate_type, form.start_date, form.return_date, form.insurance, form.gps, form.child_seat, extraRates, selectedCustomer?.birth_date]);
+  }, [selectedVehicle, form.rate_type, form.start_date, form.return_date, form.insurance, form.gps, form.child_seat, form.chauffeur, extraRates, selectedCustomer?.birth_date, rentalSettings.birthday_discount_percentage]);
 
   const validateRentalData = (data) => {
     if (!data.customer_id || !data.vehicle_id) return "Customer and vehicle are required";
@@ -128,6 +135,7 @@ export default function NewRental() {
         extras_insurance: Math.max(0, pricing?.insuranceCost || 0),
         extras_gps: Math.max(0, pricing?.gpsCost || 0),
         extras_child_seat: Math.max(0, pricing?.childSeatCost || 0),
+        extras_luxury_chauffeur: Math.max(0, pricing?.chauffeurCost || 0),
         extras_total: Math.max(0, pricing?.extrasTotal || 0),
         birthday_discount: Math.max(0, pricing?.birthdayDiscount || 0),
         total_amount: Math.max(0, pricing?.total || 0),
@@ -154,6 +162,7 @@ export default function NewRental() {
         extras_insurance: pricing?.insuranceCost || 0,
         extras_gps: pricing?.gpsCost || 0,
         extras_child_seat: pricing?.childSeatCost || 0,
+        extras_luxury_chauffeur: pricing?.chauffeurCost || 0,
         extras_total: pricing?.extrasTotal || 0,
         birthday_discount: pricing?.birthdayDiscount || 0,
         total_amount: pricing?.total || 0,
@@ -289,8 +298,15 @@ export default function NewRental() {
                   <p className="text-xs text-muted-foreground">${extraRates?.childSeat ?? 8}/day</p>
                 </div>
               </label>
-            </div>
-          </Card>
+              <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                <Checkbox checked={form.chauffeur} onCheckedChange={(v) => setForm({ ...form, chauffeur: v })} />
+                <div>
+                  <p className="text-sm font-medium">Luxury Chauffeur</p>
+                  <p className="text-xs text-muted-foreground">${extraRates?.chauffeur ?? 100}/day</p>
+                </div>
+              </label>
+              </div>
+              </Card>
 
           {/* Staff & Notes */}
           <Card className="p-5 space-y-4">

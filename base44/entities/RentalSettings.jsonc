@@ -16,6 +16,16 @@
       "type": "number",
       "default": 8,
       "description": "Daily rate for child seat add-on"
+    },
+    "luxury_chauffeur_daily_rate": {
+      "type": "number",
+      "default": 100,
+      "description": "Daily rate for luxury chauffeur service"
+    },
+    "birthday_discount_percentage": {
+      "type": "number",
+      "default": 10,
+      "description": "Birthday discount percentage"
     }
   },
   "required": []

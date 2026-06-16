@@ -22,6 +22,8 @@ export default function SettingsPage() {
     insurance_daily_rate: 15,
     gps_daily_rate: 5,
     child_seat_daily_rate: 8,
+    luxury_chauffeur_daily_rate: 100,
+    birthday_discount_percentage: 10,
   });
 
   const [saved, setSaved] = useState(false);
@@ -32,6 +34,8 @@ export default function SettingsPage() {
         insurance_daily_rate: settings.insurance_daily_rate ?? 15,
         gps_daily_rate: settings.gps_daily_rate ?? 5,
         child_seat_daily_rate: settings.child_seat_daily_rate ?? 8,
+        luxury_chauffeur_daily_rate: settings.luxury_chauffeur_daily_rate ?? 100,
+        birthday_discount_percentage: settings.birthday_discount_percentage ?? 10,
       });
     }
   }, [settings]);
@@ -42,6 +46,8 @@ export default function SettingsPage() {
         insurance_daily_rate: Number(data.insurance_daily_rate),
         gps_daily_rate: Number(data.gps_daily_rate),
         child_seat_daily_rate: Number(data.child_seat_daily_rate),
+        luxury_chauffeur_daily_rate: Number(data.luxury_chauffeur_daily_rate),
+        birthday_discount_percentage: Number(data.birthday_discount_percentage),
       };
       if (settings) {
         return base44.entities.RentalSettings.update(settings.id, parsed);
@@ -105,8 +111,37 @@ export default function SettingsPage() {
                   onChange={(e) => setForm({ ...form, child_seat_daily_rate: e.target.value })}
                 />
               </div>
-            </div>
-          </div>
+              <div>
+                <Label>Luxury Chauffeur ($/day)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.luxury_chauffeur_daily_rate}
+                  onChange={(e) => setForm({ ...form, luxury_chauffeur_daily_rate: e.target.value })}
+                />
+              </div>
+              </div>
+              </div>
+
+              <div>
+              <h3 className="font-heading font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-4">
+              Discount Settings
+              </h3>
+              <div className="space-y-4">
+              <div>
+               <Label>Birthday Discount (%)</Label>
+               <Input
+                 type="number"
+                 min="0"
+                 max="100"
+                 step="0.01"
+                 value={form.birthday_discount_percentage}
+                 onChange={(e) => setForm({ ...form, birthday_discount_percentage: e.target.value })}
+               />
+              </div>
+              </div>
+              </div>
 
           <Button
             className="w-full bg-accent text-accent-foreground hover:bg-accent/90 gap-2"

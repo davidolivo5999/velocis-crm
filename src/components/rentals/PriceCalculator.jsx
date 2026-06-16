@@ -16,7 +16,7 @@ const isBirthday = (birthDate) => {
   return today.getMonth() === birth.getMonth() && today.getDate() === birth.getDate();
 };
 
-export function calculatePrice({ vehicle, rateType, startDate, returnDate, insurance, gps, childSeat, extraRates, customerBirthDate }) {
+export function calculatePrice({ vehicle, rateType, startDate, returnDate, insurance, gps, childSeat, chauffeur, extraRates, customerBirthDate, birthdayDiscountPercent }) {
   if (!vehicle || !startDate || !returnDate) return null;
 
   const rates = { ...DEFAULT_RATES, ...extraRates };
@@ -48,10 +48,12 @@ export function calculatePrice({ vehicle, rateType, startDate, returnDate, insur
   const insuranceCost = insurance ? days * rates.insurance : 0;
   const gpsCost = gps ? days * rates.gps : 0;
   const childSeatCost = childSeat ? days * rates.childSeat : 0;
-  const extrasTotal = insuranceCost + gpsCost + childSeatCost;
+  const chauffeurCost = chauffeur ? days * (rates.chauffeur || 100) : 0;
+  const extrasTotal = insuranceCost + gpsCost + childSeatCost + chauffeurCost;
   const subtotal = baseRate + extrasTotal;
   const hasBirthdayDiscount = isBirthday(customerBirthDate);
-  const birthdayDiscount = hasBirthdayDiscount ? Math.round(subtotal * 0.1 * 100) / 100 : 0;
+  const discountPercent = birthdayDiscountPercent || 10;
+  const birthdayDiscount = hasBirthdayDiscount ? Math.round(subtotal * (discountPercent / 100) * 100) / 100 : 0;
   const total = subtotal - birthdayDiscount;
 
   return {
@@ -62,6 +64,7 @@ export function calculatePrice({ vehicle, rateType, startDate, returnDate, insur
     insuranceCost: Math.round(insuranceCost * 100) / 100,
     gpsCost: Math.round(gpsCost * 100) / 100,
     childSeatCost: Math.round(childSeatCost * 100) / 100,
+    chauffeurCost: Math.round(chauffeurCost * 100) / 100,
     extrasTotal: Math.round(extrasTotal * 100) / 100,
     subtotal: Math.round(subtotal * 100) / 100,
     birthdayDiscount,
@@ -108,6 +111,12 @@ export default function PriceCalculator({ pricing }) {
           <div className="flex justify-between">
             <span className="opacity-80">Child Seat ({pricing.days}d × ${r.childSeat})</span>
             <span>${pricing.childSeatCost}</span>
+          </div>
+        )}
+        {pricing.chauffeurCost > 0 && (
+          <div className="flex justify-between">
+            <span className="opacity-80">Luxury Chauffeur ({pricing.days}d × ${r.chauffeur})</span>
+            <span>${pricing.chauffeurCost}</span>
           </div>
         )}
         <Separator className="bg-primary-foreground/20" />
