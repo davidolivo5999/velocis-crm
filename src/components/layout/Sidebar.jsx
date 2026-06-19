@@ -39,7 +39,7 @@ export default function Sidebar() {
       {/* Mobile top bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-sidebar border-b border-sidebar-border px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <img src="https://media.base44.com/images/public/6a2fe875358d60a34ee442ab/14fa00edc_Untitleddesign-3.png" alt="On Tour Rental" className="h-8 w-auto object-contain" />
+          <img src="https://media.base44.com/images/public/6a2fe875358d60a34ee442ab/a29653bd3_OnTour_Rental_Logo_Trimmed.png" alt="On Tour Rental" className="h-10 w-auto object-contain" />
         </div>
         <button onClick={() => setOpen(!open)} className="text-sidebar-foreground p-1">
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -60,7 +60,7 @@ export default function Sidebar() {
         )}
       >
         <div className="p-5 flex items-center gap-3 border-b border-sidebar-border">
-          <img src="https://media.base44.com/images/public/6a2fe875358d60a34ee442ab/14fa00edc_Untitleddesign-3.png" alt="On Tour Rental" className="h-12 w-auto object-contain" />
+          <img src="https://media.base44.com/images/public/6a2fe875358d60a34ee442ab/a29653bd3_OnTour_Rental_Logo_Trimmed.png" alt="On Tour Rental" className="w-full max-w-[200px] h-auto object-contain" />
         </div>
 
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
