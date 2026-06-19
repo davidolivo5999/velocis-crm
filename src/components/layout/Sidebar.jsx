@@ -39,10 +39,7 @@ export default function Sidebar() {
       {/* Mobile top bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-sidebar border-b border-sidebar-border px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
-            <Car className="w-4 h-4 text-accent-foreground" />
-          </div>
-          <span className="font-heading font-bold text-sidebar-foreground text-lg">AutoRent</span>
+          <img src="https://media.base44.com/images/public/6a2fe875358d60a34ee442ab/3314eb5ad_Untitleddesign-2.png" alt="On Tour Rental" className="h-8 w-auto object-contain" />
         </div>
         <button onClick={() => setOpen(!open)} className="text-sidebar-foreground p-1">
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -63,13 +60,7 @@ export default function Sidebar() {
         )}
       >
         <div className="p-5 flex items-center gap-3 border-b border-sidebar-border">
-          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-            <Car className="w-5 h-5 text-accent-foreground" />
-          </div>
-          <div>
-            <h1 className="font-heading font-bold text-sidebar-foreground text-xl tracking-tight">AutoRent</h1>
-            <p className="text-xs text-sidebar-foreground/50">Fleet Management</p>
-          </div>
+          <img src="https://media.base44.com/images/public/6a2fe875358d60a34ee442ab/3314eb5ad_Untitleddesign-2.png" alt="On Tour Rental" className="h-12 w-auto object-contain" />
         </div>
 
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -98,7 +89,7 @@ export default function Sidebar() {
         <div className="p-4 border-t border-sidebar-border">
           <div className="bg-sidebar-accent/50 rounded-xl p-3">
             <p className="text-xs text-sidebar-foreground/50 mb-1">Active Fleet</p>
-            <p className="text-sm font-semibold text-sidebar-foreground">Auto Rental CRM</p>
+            <p className="text-sm font-semibold text-sidebar-foreground">On Tour Rental</p>
           </div>
         </div>
       </aside>
