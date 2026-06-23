@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
 import {
   LayoutDashboard,
   Car,
@@ -30,16 +31,25 @@ const navItems = [
   { label: "Settings", icon: Settings, path: "/settings" },
 ];
 
+const DEFAULT_LOGO = "https://media.base44.com/images/public/6a2fe875358d60a34ee442ab/e26d63a68_OnTour_Rental_Logo_Trimmed.png";
+
 export default function Sidebar() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [logoUrl, setLogoUrl] = useState(DEFAULT_LOGO);
+
+  useEffect(() => {
+    base44.auth.me().then((user) => {
+      if (user?.custom_logo_url) setLogoUrl(user.custom_logo_url);
+    }).catch(() => {});
+  }, []);
 
   return (
     <>
       {/* Mobile top bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-sidebar border-b border-sidebar-border px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <img src="https://media.base44.com/images/public/6a2fe875358d60a34ee442ab/e26d63a68_OnTour_Rental_Logo_Trimmed.png" alt="On Tour Rental" className="h-14 w-auto object-contain" />
+          <img src={logoUrl} alt="On Tour Rental" className="h-14 w-auto object-contain" />
         </div>
         <button onClick={() => setOpen(!open)} className="text-sidebar-foreground p-1">
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -60,7 +70,7 @@ export default function Sidebar() {
         )}
       >
         <div className="p-5 flex items-center gap-3 border-b border-sidebar-border">
-          <img src="https://media.base44.com/images/public/6a2fe875358d60a34ee442ab/e26d63a68_OnTour_Rental_Logo_Trimmed.png" alt="On Tour Rental" className="w-full max-w-[220px] h-auto object-contain" />
+          <img src={logoUrl} alt="On Tour Rental" className="w-full max-w-[220px] h-auto object-contain" />
         </div>
 
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">

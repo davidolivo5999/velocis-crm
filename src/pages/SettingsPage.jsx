@@ -5,11 +5,37 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Settings, CheckCircle } from "lucide-react";
+import { Settings, CheckCircle, Upload, Image } from "lucide-react";
 import PageHeader from "@/components/shared/PageHeader";
 
 export default function SettingsPage() {
   const queryClient = useQueryClient();
+  const [logoUrl, setLogoUrl] = useState("");
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoSaved, setLogoSaved] = useState(false);
+
+  useEffect(() => {
+    base44.auth.me().then((user) => {
+      if (user?.custom_logo_url) setLogoUrl(user.custom_logo_url);
+    }).catch(() => {});
+  }, []);
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setLogoUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await base44.auth.updateMe({ custom_logo_url: file_url });
+      setLogoUrl(file_url);
+      setLogoSaved(true);
+      setTimeout(() => setLogoSaved(false), 2500);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLogoUploading(false);
+    }
+  };
 
   const { data: settingsList = [], isLoading } = useQuery({
     queryKey: ["rentalSettings"],
@@ -75,6 +101,26 @@ export default function SettingsPage() {
       <PageHeader title="Settings" subtitle="Configure pricing and app preferences" />
 
       <div className="max-w-lg space-y-6">
+        <Card className="p-6 space-y-4">
+          <h3 className="font-heading font-semibold text-sm uppercase tracking-wider text-muted-foreground">
+            Branding
+          </h3>
+          {logoUrl && (
+            <div className="bg-primary rounded-lg p-3 flex items-center justify-center h-20">
+              <img src={logoUrl} alt="Current logo" className="h-full w-auto object-contain" />
+            </div>
+          )}
+          <div>
+            <Label>Upload Logo</Label>
+            <p className="text-xs text-muted-foreground mb-2">This logo appears in your sidebar. Each user can set their own.</p>
+            <label className="inline-flex items-center gap-2 cursor-pointer border border-input rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors">
+              <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={logoUploading} />
+              <Upload className="w-4 h-4" />
+              {logoUploading ? "Uploading..." : logoSaved ? "✓ Logo Updated!" : "Choose Image"}
+            </label>
+          </div>
+        </Card>
+
         <Card className="p-6 space-y-5">
           <div>
             <h3 className="font-heading font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-4">
