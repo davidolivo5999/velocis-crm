@@ -13,7 +13,7 @@ import PageHeader from "@/components/shared/PageHeader";
 import StatusBadge from "@/components/shared/StatusBadge";
 import EmptyState from "@/components/shared/EmptyState";
 
-const ROLES = ["manager", "agent", "mechanic", "admin", "driver"];
+const ROLES = ["manager", "agent", "mechanic", "admin", "driver", "user"];
 
 export default function StaffPage() {
   const queryClient = useQueryClient();
