@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Card } from "@/components/ui/card";
@@ -10,6 +10,14 @@ import PageHeader from "@/components/shared/PageHeader";
 import { format } from "date-fns";
 
 export default function Dashboard() {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    base44.auth.me().then((user) => {
+      if (user?.role === "admin") setIsAdmin(true);
+    }).catch(() => {});
+  }, []);
+
   const { data: rentals = [] } = useQuery({
     queryKey: ["rentals"],
     queryFn: () => base44.entities.Rental.list("-created_date", 100),
@@ -44,7 +52,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard title="Active Rentals" value={activeRentals.length} icon={Car} trend={`${rentals.length} total`} trendUp />
         <StatCard title="Fleet Available" value={`${availableVehicles.length}/${vehicles.length}`} icon={CarIcon} />
-        <StatCard title="Monthly Revenue" value={`$${monthlyRevenue.toLocaleString()}`} icon={DollarSign} trend="This month" trendUp />
+        {isAdmin && <StatCard title="Monthly Revenue" value={`$${monthlyRevenue.toLocaleString()}`} icon={DollarSign} trend="This month" trendUp />}
         <StatCard title="Pending Payments" value={`$${pendingTotal.toLocaleString()}`} icon={Clock} trend={`${pendingPayments.length} invoices`} />
       </div>
 
