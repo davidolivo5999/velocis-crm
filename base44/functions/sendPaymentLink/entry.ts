@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "onboarding@resend.dev",
+          from: "lue@ontourrentals.com",
           to: customerEmail,
           subject: `Your Rental Payment Link - ${String(vehicleName).substring(0, 100)}`,
           html: `<p>Hi ${customerName || "Valued Customer"},</p><p>Your rental has been created! Click the link below to pay <strong>$${(amount).toFixed(2)}</strong>:</p><p><a href="${session.url}" style="background-color: #222; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Complete Payment</a></p><p>This link is valid for 24 hours.</p><p>Thank you!</p>`,
