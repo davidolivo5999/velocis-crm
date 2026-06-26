@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { CreditCard, Search, Filter, ExternalLink, Plus } from "lucide-react";
+import { CreditCard, Search, Filter, ExternalLink, Plus, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -20,6 +20,9 @@ export default function Payments() {
   const [selected, setSelected] = useState(null);
   const [stripeLoading, setStripeLoading] = useState(false);
   const [tollAmount, setTollAmount] = useState("");
+  const [extraChargeAmount, setExtraChargeAmount] = useState("");
+  const [extraChargeNote, setExtraChargeNote] = useState("");
+  const [extraChargeLoading, setExtraChargeLoading] = useState(false);
 
   const handleStripeCheckout = async (payment) => {
     const isInIframe = window.self !== window.top;
@@ -54,6 +57,30 @@ export default function Payments() {
       if (!newSelected) setSelected(null);
     },
   });
+
+  const sendAdditionalCharge = async () => {
+    const amount = parseFloat(extraChargeAmount);
+    if (!amount || amount <= 0 || !selected) return;
+    const isInIframe = window.self !== window.top;
+    if (isInIframe) {
+      alert("Stripe checkout only works from the published app.");
+      return;
+    }
+    setExtraChargeLoading(true);
+    const res = await base44.functions.invoke("sendPaymentLink", {
+      paymentId: selected.id,
+      customerEmail: selected.customer_email,
+      customerName: selected.customer_name,
+      vehicleName: `${selected.vehicle_name} — ${extraChargeNote || "Additional Charge"}`,
+      amount,
+    });
+    setExtraChargeLoading(false);
+    if (res.data?.url) {
+      window.open(res.data.url, "_blank");
+    }
+    setExtraChargeAmount("");
+    setExtraChargeNote("");
+  };
 
   const addTollCharge = () => {
     const amount = parseFloat(tollAmount);
@@ -136,7 +163,7 @@ export default function Payments() {
         </div>
       )}
 
-      <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
+      <Dialog open={!!selected} onOpenChange={() => { setSelected(null); setExtraChargeAmount(""); setExtraChargeNote(""); setTollAmount(""); }}>
         <DialogContent className="max-w-sm">
           <DialogHeader><DialogTitle>Payment Details</DialogTitle></DialogHeader>
           {selected && (
@@ -173,6 +200,33 @@ export default function Payments() {
                   </div>
                 )}
               </div>
+              {/* Additional Charge */}
+              <div className="pt-1 border-t space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Send Additional Charge</p>
+                <Input
+                  type="text"
+                  placeholder="Description (e.g. Cleaning fee)"
+                  value={extraChargeNote}
+                  onChange={(e) => setExtraChargeNote(e.target.value)}
+                  className="h-8 text-sm"
+                />
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Amount $"
+                    value={extraChargeAmount}
+                    onChange={(e) => setExtraChargeAmount(e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                  <Button size="sm" onClick={sendAdditionalCharge} disabled={extraChargeLoading || !extraChargeAmount} className="gap-1 shrink-0 bg-accent text-accent-foreground hover:bg-accent/90">
+                    {extraChargeLoading ? <div className="w-3 h-3 border-2 border-current/30 border-t-current rounded-full animate-spin" /> : <Send className="w-3 h-3" />}
+                    Send
+                  </Button>
+                </div>
+              </div>
+
               {selected.status !== "paid" && (
                 <div className="space-y-3">
                   <div className="space-y-2">
