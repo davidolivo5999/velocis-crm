@@ -22,6 +22,11 @@
       "default": 100,
       "description": "Daily rate for luxury chauffeur service"
     },
+    "ezpass_daily_rate": {
+      "type": "number",
+      "default": 4,
+      "description": "Daily rate for EZPass add-on"
+    },
     "birthday_discount_percentage": {
       "type": "number",
       "default": 10,

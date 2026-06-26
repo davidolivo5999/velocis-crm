@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { CreditCard, Search, Filter, ExternalLink } from "lucide-react";
+import { CreditCard, Search, Filter, ExternalLink, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -19,6 +19,7 @@ export default function Payments() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selected, setSelected] = useState(null);
   const [stripeLoading, setStripeLoading] = useState(false);
+  const [tollAmount, setTollAmount] = useState("");
 
   const handleStripeCheckout = async (payment) => {
     const isInIframe = window.self !== window.top;
@@ -48,8 +49,22 @@ export default function Payments() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Payment.update(id, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["payments"] }); setSelected(null); },
+    onSuccess: (_, { newSelected }) => {
+      queryClient.invalidateQueries({ queryKey: ["payments"] });
+      if (!newSelected) setSelected(null);
+    },
   });
+
+  const addTollCharge = () => {
+    const amount = parseFloat(tollAmount);
+    if (!amount || amount <= 0 || !selected) return;
+    const newTolls = (selected.extras_toll_charges || 0) + amount;
+    const newTotal = selected.total_amount + amount;
+    const updated = { extras_toll_charges: newTolls, total_amount: newTotal };
+    updateMutation.mutate({ id: selected.id, data: updated, newSelected: true });
+    setSelected({ ...selected, ...updated });
+    setTollAmount("");
+  };
 
   const filtered = payments.filter((p) => {
     const matchSearch = !search || p.customer_name?.toLowerCase().includes(search.toLowerCase()) || p.vehicle_name?.toLowerCase().includes(search.toLowerCase());
@@ -129,11 +144,34 @@ export default function Payments() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">Customer</span><span className="font-medium">{selected.customer_name}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Base Rate</span><span>${selected.base_rate}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Insurance</span><span>${selected.extras_insurance || 0}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">GPS</span><span>${selected.extras_gps || 0}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Child Seat</span><span>${selected.extras_child_seat || 0}</span></div>
+                {(selected.extras_insurance > 0) && <div className="flex justify-between"><span className="text-muted-foreground">Insurance</span><span>${selected.extras_insurance}</span></div>}
+                {(selected.extras_gps > 0) && <div className="flex justify-between"><span className="text-muted-foreground">GPS</span><span>${selected.extras_gps}</span></div>}
+                {(selected.extras_child_seat > 0) && <div className="flex justify-between"><span className="text-muted-foreground">Child Seat</span><span>${selected.extras_child_seat}</span></div>}
+                {(selected.extras_luxury_chauffeur > 0) && <div className="flex justify-between"><span className="text-muted-foreground">Luxury Chauffeur</span><span>${selected.extras_luxury_chauffeur}</span></div>}
+                {(selected.extras_ezpass > 0) && <div className="flex justify-between"><span className="text-muted-foreground">EZPass (daily)</span><span>${selected.extras_ezpass}</span></div>}
+                {(selected.extras_toll_charges > 0) && <div className="flex justify-between text-amber-600"><span className="text-muted-foreground">Toll Charges</span><span>${selected.extras_toll_charges}</span></div>}
                 <hr />
                 <div className="flex justify-between font-bold text-base"><span>Total</span><span>${selected.total_amount}</span></div>
+                {/* Add Toll Charge */}
+                {selected.extras_ezpass > 0 && (
+                  <div className="pt-2">
+                    <p className="text-xs text-muted-foreground font-medium mb-1">Add Toll Charge</p>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="Amount $"
+                        value={tollAmount}
+                        onChange={(e) => setTollAmount(e.target.value)}
+                        className="h-8 text-sm"
+                      />
+                      <Button size="sm" variant="outline" onClick={addTollCharge} className="gap-1 shrink-0">
+                        <Plus className="w-3 h-3" /> Add
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
               {selected.status !== "paid" && (
                 <div className="space-y-3">

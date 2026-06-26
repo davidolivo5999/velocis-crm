@@ -44,6 +44,7 @@ export default function NewRental() {
     gps: rentalSettings.gps_daily_rate ?? 5,
     childSeat: rentalSettings.child_seat_daily_rate ?? 8,
     chauffeur: rentalSettings.luxury_chauffeur_daily_rate ?? 100,
+    ezpass: rentalSettings.ezpass_daily_rate ?? 4,
   };
 
   const availableVehicles = vehicles.filter((v) => v.status === "available");
@@ -58,6 +59,7 @@ export default function NewRental() {
     gps: false,
     child_seat: false,
     chauffeur: false,
+    ezpass: false,
     staff_id: "",
     notes: "",
   });
@@ -76,11 +78,12 @@ export default function NewRental() {
       gps: form.gps,
       childSeat: form.child_seat,
       chauffeur: form.chauffeur,
+      ezpass: form.ezpass,
       extraRates,
       customerBirthDate: selectedCustomer?.birth_date,
       birthdayDiscountPercent: rentalSettings.birthday_discount_percentage || 10,
     });
-  }, [selectedVehicle, form.rate_type, form.start_date, form.return_date, form.insurance, form.gps, form.child_seat, form.chauffeur, extraRates, selectedCustomer?.birth_date, rentalSettings.birthday_discount_percentage]);
+  }, [selectedVehicle, form.rate_type, form.start_date, form.return_date, form.insurance, form.gps, form.child_seat, form.chauffeur, form.ezpass, extraRates, selectedCustomer?.birth_date, rentalSettings.birthday_discount_percentage]);
 
   const validateRentalData = (data) => {
     if (!data.customer_id || !data.vehicle_id) return "Customer and vehicle are required";
@@ -139,6 +142,7 @@ export default function NewRental() {
         extras_gps: Math.max(0, pricing?.gpsCost || 0),
         extras_child_seat: Math.max(0, pricing?.childSeatCost || 0),
         extras_luxury_chauffeur: Math.max(0, pricing?.chauffeurCost || 0),
+        extras_ezpass: Math.max(0, pricing?.ezpassCost || 0),
         extras_total: Math.max(0, pricing?.extrasTotal || 0),
         birthday_discount: Math.max(0, pricing?.birthdayDiscount || 0),
         total_amount: Math.max(0, pricing?.total || 0),
@@ -168,6 +172,7 @@ export default function NewRental() {
         extras_gps: pricing?.gpsCost || 0,
         extras_child_seat: pricing?.childSeatCost || 0,
         extras_luxury_chauffeur: pricing?.chauffeurCost || 0,
+        extras_ezpass: pricing?.ezpassCost || 0,
         extras_total: pricing?.extrasTotal || 0,
         birthday_discount: pricing?.birthdayDiscount || 0,
         total_amount: pricing?.total || 0,
@@ -324,6 +329,13 @@ export default function NewRental() {
                 <div>
                   <p className="text-sm font-medium">Luxury Chauffeur</p>
                   <p className="text-xs text-muted-foreground">${extraRates?.chauffeur ?? 100}/day</p>
+                </div>
+              </label>
+              <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                <Checkbox checked={form.ezpass} onCheckedChange={(v) => setForm({ ...form, ezpass: v })} />
+                <div>
+                  <p className="text-sm font-medium">EZPass</p>
+                  <p className="text-xs text-muted-foreground">${extraRates?.ezpass ?? 4}/day</p>
                 </div>
               </label>
               </div>

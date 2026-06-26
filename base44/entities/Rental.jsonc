@@ -55,6 +55,10 @@
       "type": "number",
       "default": 0
     },
+    "extras_ezpass": {
+      "type": "number",
+      "default": 0
+    },
     "extras_total": {
       "type": "number",
       "default": 0
