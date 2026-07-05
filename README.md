@@ -1,39 +1,66 @@
-**Welcome to your Base44 project** 
+🚗 Velocis CRM
+A vehicle rental CRM platform built to streamline fleet management, customer tracking, and rental operations.
+🔗 Live Demo: ontourrentals.com
 
-**About**
+🧠 About the Project
+Velocis CRM is a full-featured customer relationship and fleet management platform built for vehicle rental businesses. It centralizes rental operations — from inventory tracking and customer management to booking workflows and revenue reporting — replacing fragmented spreadsheets and legacy tools with a modern, unified dashboard.
+This project was built as a complete product concept with a live, deployed backend.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+✨ Features
 
-This project contains everything you need to run your app locally.
+🚙 Fleet Inventory Management — Track vehicles, availability, and maintenance status in real time
+👥 Customer Management — Maintain customer profiles, rental history, and contact information
+📅 Booking & Rental Workflows — Manage reservations from inquiry through return
+📊 Revenue & Operations Dashboard — Monitor key metrics across the rental business
+🔐 Role-Based Access Control — Admin and team member permissions
+📧 Email Notifications — Automated alerts for bookings, returns, and updates via Resend
+📱 Responsive Design — Optimized for desktop and mobile use
 
-**Edit the code in your local development environment**
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+🛠️ Tech Stack
+LayerTechnologyFrontendReact + JavaScriptStylingTailwind CSS + shadcn/uiBackendBase44 (Auth + Database + Functions)EmailResendBuild ToolViteHostingontourrentals.com
 
-**Prerequisites:** 
+🚀 Running Locally
+bash# Clone the repository
+git clone https://github.com/davidolivo5999/velocis-crm.git
 
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
+# Navigate into the project
+cd velocis-crm
 
-```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
+# Install dependencies
+npm install
 
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
-```
+# Create environment file
+cp .env.example .env.local
+# Add your Base44 credentials:
+# VITE_BASE44_APP_ID=your_app_id
+# VITE_BASE44_APP_BASE_URL=your_backend_url
 
-Run the app: `npm run dev`
+# Start the development server
+npm run dev
 
-**Publish your changes**
+📁 Project Structure
+velocis-crm/
+├── src/                  # Main application source code
+├── base44/               # Base44 backend functions and config
+├── components.json       # shadcn/ui component config
+├── tailwind.config.js    # Tailwind configuration
+└── index.html            # App entry point
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+📄 Product Documentation
+This project was built with a full product management workflow including:
 
-**Docs & Support**
+✅ Product Requirements Document (PRD)
+✅ Feature Specifications across 8 product areas
+✅ MVP Scope Definition
+✅ User Personas & Journey Mapping
+✅ Roadmap & Prioritization Framework
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
 
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+👤 Author
+David Olivo — Product Manager & Builder
+📧 davidolivo399@gmail.com
+🐙 @davidolivo5999
+
+📜 License
+Built on Base44. See Base44 terms for platform usage details.
